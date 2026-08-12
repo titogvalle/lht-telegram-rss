@@ -11,19 +11,26 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - run: python generate_feed.py
+      - name: Generate RSS
+        run: python generate_feed.py
 
-      - name: Commit feed
+      - name: Commit RSS
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/lht.xml
-          git diff --cached --quiet || git commit -m "Update LHT RSS"
-      git push
+          git diff --cached --quiet
+          if [ $? -ne 0 ]; then
+            git commit -m "Update LHT RSS"
+            git push
+          fi
